@@ -1,244 +1,1254 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gold Ex A2+ Study room</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&display=swap">
-<style>
-:root{--bg:#eef2f8;--card:#fff;--ink:#14213d;--mut:#52627f;--line:#cfd8e8;--brand:#2a55e0;--gold:#ffd84d;--soft:#e4eaf4;--edge:#9fb0d0;--ok:#dff3ea;--okl:#17795a;color-scheme:light dark}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1726;--card:#18233a;--ink:#eaf0fb;--mut:#a8b6d0;--line:#2d3b58;--brand:#8fa8ff;--soft:#22304d;--edge:#4a5c80;--ok:#16372c;--okl:#6fd4a8}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,system-ui,sans-serif;font-size:16px;line-height:1.4}
-main{max-width:760px;margin:0 auto;padding:32px 20px 56px;display:flex;flex-direction:column;gap:18px}
-h1,h2{font-family:"Bricolage Grotesque","Trebuchet MS",sans-serif;margin:0;line-height:1.05}
-h1{font-weight:800;font-size:clamp(30px,6vw,40px);letter-spacing:-.01em}
-h2{font-weight:800;font-size:28px}
-.sub{margin:0;color:var(--mut);font-size:14px}
-.row{display:flex;flex-wrap:wrap;gap:8px}
-.between{justify-content:space-between}
-.btn{font:inherit;font-size:15px;font-weight:600;min-height:44px;padding:8px 16px;border-radius:10px;border:1px solid var(--edge);background:var(--card);color:var(--ink);cursor:pointer}
-.btn:hover:not(:disabled){background:var(--soft)}
-.btn:disabled{opacity:.4;cursor:default}
-.btn[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-button:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
-.nav{display:flex;gap:8px;padding:4px;background:var(--soft);border-radius:14px;align-self:flex-start}
-.sq{width:38px;height:38px;border-radius:4px;border:2px solid var(--line);background:var(--card);color:var(--mut);font:inherit;font-weight:800;font-size:15px;cursor:pointer;padding:0}
-.sq.star{border-color:#b8860b;background:#fff7d6;color:#14213d}
-.sq.cur{background:var(--gold);border-color:#14213d;color:#14213d}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 1px 2px rgba(20,33,61,.08),0 10px 30px rgba(20,33,61,.08);padding:26px 24px;min-height:300px;display:flex;flex-direction:column;gap:14px}
-.tag{font-size:12px;font-weight:600;color:var(--mut);border:1px solid var(--line);padding:3px 9px;border-radius:99px}
-.starbtn{min-width:44px;padding:4px 10px;font-size:24px;line-height:1}
-.starbtn[aria-pressed=true]{background:var(--gold);border-color:#b8860b;color:#14213d}
-.word{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;line-height:1.02;overflow-wrap:anywhere;margin:0}
-.pic{width:150px;height:150px;align-self:center;border-radius:14px}
-.ex{margin:0;padding-left:14px;border-left:3px solid var(--brand);font-size:18px}
-mark{background:var(--gold);color:#14213d;padding:0 3px;border-radius:3px}
-.blank{display:inline-block;min-width:6ch;border-bottom:2px solid var(--ink)}
-.arrows{display:flex;justify-content:center;align-items:center;gap:16px}
-.arrows .btn{width:72px;font-size:24px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.tile{min-height:84px;padding:10px;border-radius:12px;font:inherit;font-size:16px;line-height:1.25;text-align:center;overflow-wrap:anywhere;cursor:pointer;border:2px solid var(--edge);background:var(--card);color:var(--ink)}
-.tile img{width:64px;height:64px;display:block;margin:0 auto}
-.tile.w{font-weight:800}
-.tile.down{background:var(--brand);border-color:var(--brand);color:#fff;font-size:30px;font-weight:800}
-.tile.sel{background:var(--gold);border-color:#14213d;color:#14213d}
-.tile.done{background:var(--ok);border-color:var(--okl);opacity:.8}
-.msg{margin:0;font-weight:600}
-</style>
-</head>
-<body>
-<main id="app"></main>
-<script>
-const P = (s) => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
-const S = (b) => P(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>${b}</svg>`);
-const E = (e) => S(`<text x='50' y='76' font-size='78' text-anchor='middle'>${e}</text>`);
-const G = (p, rows) => rows.map((r, i) => ({ id: p + i, word: r[0], pos: r[1], meaning: r[2], example: r[3], trick: '', pic: r[4] ? E(r[4]) : '', ua: r[5], es: r[6], zh: r[7] }));
-const GOLD_A = G('ga', [
- ['attractive', 'adjective', 'Nice to look at.', 'The old town is very *attractive*.', '🌸', 'привабливий', 'atractivo', '有吸引力的'],
- ['dull', 'adjective', 'Boring and not interesting.', 'The town is *dull* on Sundays.', '🥱', 'нудний', 'aburrido', '乏味的'],
- ['happy', 'adjective', 'Feeling good and pleased.', 'Children are *happy* in this town.', '😀', 'щасливий', 'feliz', '快乐的'],
- ['industrial', 'adjective', 'Full of factories and industry.', 'It is an *industrial* city.', '🏭', 'промисловий', 'industrial', '工业的'],
- ['lively', 'adjective', 'Full of life and activity.', 'The market is *lively* at night.', '🎉', 'жвавий', 'animado', '热闹的'],
- ['modern', 'adjective', 'New, not old.', 'The library is a *modern* building.', '🏙️', 'сучасний', 'moderno', '现代的'],
- ['quiet', 'adjective', 'Without much noise.', 'Our street is very *quiet*.', '🤫', 'тихий', 'tranquilo', '安静的'],
- ['relaxed', 'adjective', 'Calm and not worried.', 'People are *relaxed* here.', '😌', 'розслаблений', 'relajado', '轻松的'],
- ['safe', 'adjective', 'Not dangerous.', 'The park is *safe* for children.', '🔒', 'безпечний', 'seguro', '安全的'],
- ['traditional', 'adjective', 'Following old customs.', 'We ate a *traditional* meal.', '🏯', 'традиційний', 'tradicional', '传统的'],
- ['apartment block', 'noun', 'A tall building with many flats.', 'We live in an *apartment block*.', '🏢', 'багатоквартирний будинок', 'bloque de apartamentos', '公寓楼'],
- ['art gallery', 'noun', 'A place where you look at paintings.', 'We visited an *art gallery*.', '🖼️', 'художня галерея', 'galería de arte', '美术馆'],
- ['bike rack', 'noun', 'A stand where you lock your bike.', 'I put my bike in the *bike rack*.', '🚲', 'велосипедна стоянка', 'aparcabicicletas', '自行车架'],
- ['bus stop', 'noun', 'A place where buses stop for people.', 'I wait at the *bus stop*.', '🚏', 'автобусна зупинка', 'parada de autobús', '公交车站'],
- ['crossing', 'noun', 'A place where you cross the road.', 'Use the *crossing* to cross the road.', '🚸', 'пішохідний перехід', 'paso de peatones', '人行横道'],
- ['department store', 'noun', 'A big shop with many sections.', 'The *department store* sells clothes and toys.', '🏬', 'універмаг', 'grandes almacenes', '百货商店'],
- ['pavement', 'noun', 'The path at the side of a road.', 'Walk on the *pavement*.', '🚶', 'тротуар', 'acera', '人行道'],
- ['rubbish bin', 'noun', 'A container for rubbish.', 'Put it in the *rubbish bin*.', '🗑️', 'сміттєвий бак', 'papelera', '垃圾桶'],
- ['seat', 'noun', 'Something you sit on.', 'There is a *seat* in the park.', '🪑', 'сидіння', 'asiento', '座位'],
- ['skate park', 'noun', 'A place for skateboarding.', 'He goes to the *skate park* after school.', '🛹', 'скейт-парк', 'skatepark', '滑板公园'],
- ['sports centre', 'noun', 'A building for sport and exercise.', 'We play tennis at the *sports centre*.', '🏟️', 'спортивний центр', 'polideportivo', '体育中心'],
- ['swimming pool', 'noun', 'A place to swim.', 'The *swimming pool* is very big.', '🏊', 'басейн', 'piscina', '游泳池']
-]);
-const GOLD_B = G('gb', [
- ['by the sea/water', 'phrase', 'Next to the sea or water.', 'Our hotel is *by the sea*.', '🌊', 'біля моря/води', 'junto al mar/agua', '在海边/水边'],
- ['in an area/a region called', 'phrase', 'In a place with a name.', 'It is *in a region called* Tuscany.', '📍', 'у районі/регіоні під назвою', 'en una zona/región llamada', '在名为……的地区'],
- ['in the capital', 'phrase', 'In the main city of a country.', 'The museum is *in the capital*.', '🏛️', 'у столиці', 'en la capital', '在首都'],
- ['in the centre of', 'phrase', 'In the middle of a place.', 'The square is *in the centre of* town.', '🎯', 'у центрі', 'en el centro de', '在……的中心'],
- ['in the north/south/east/west', 'phrase', 'In one part of a country.', 'Scotland is *in the north* of Britain.', '🧭', 'на півночі/півдні/сході/заході', 'en el norte/sur/este/oeste', '在北部/南部/东部/西部'],
- ['near the border with', 'phrase', 'Close to the line between two countries.', 'The town is *near the border with* Poland.', '🚧', 'поблизу кордону з', 'cerca de la frontera con', '靠近与……的边界'],
- ['near the capital', 'phrase', 'Close to the main city.', 'We live *near the capital*.', '🗺️', 'поблизу столиці', 'cerca de la capital', '靠近首都'],
- ['near the mountains', 'phrase', 'Close to the mountains.', 'The village is *near the mountains*.', '🏔️', 'поблизу гір', 'cerca de las montañas', '靠近山区'],
- ['on the coast', 'phrase', 'At the edge of the land, next to the sea.', 'Brighton is *on the coast*.', '🏖️', 'на узбережжі', 'en la costa', '在海岸'],
- ['at the back', 'phrase', 'Behind, in the part furthest away.', 'The dog is *at the back* of the photo.', '', 'позаду, на задньому плані', 'al fondo', '在后面'],
- ['at the front', 'phrase', 'In the part nearest to you.', 'The girl is *at the front* of the photo.', '', 'спереду', 'delante', '在前面'],
- ['on the left', 'phrase', 'On the side of your left hand.', 'The bike is *on the left*.', '⬅️', 'ліворуч', 'a la izquierda', '在左边'],
- ['on the right', 'phrase', 'On the side of your right hand.', 'The bus is *on the right*.', '➡️', 'праворуч', 'a la derecha', '在右边']
-]);
-const GOLD_C = G('gc', [
- ['community', 'noun', 'A group of people who live in one place.', 'Our *community* is friendly.', '🏘️', 'громада', 'comunidad', '社区'],
- ['freeze', 'verb', 'To become ice because it is very cold.', 'Water will *freeze* tonight.', '🥶', 'замерзати', 'congelarse', '结冰'],
- ['hang out', 'phrasal verb', 'To spend time with friends.', 'We *hang out* at the park.', '😎', 'проводити час разом', 'pasar el rato', '闲逛'],
- ['lift', 'noun', 'A machine that takes you up and down a building.', 'Take the *lift* to the sixth floor.', '🛗', 'ліфт', 'ascensor', '电梯'],
- ['open', 'adjective', 'Not closed.', 'The shop is *open* until nine.', '🔓', 'відкритий', 'abierto', '开着的'],
- ['pressure', 'noun', 'A feeling of worry from having to do something.', 'Exams put *pressure* on students.', '😰', 'тиск', 'presión', '压力'],
- ['be the best at something', 'phrase', 'To do something better than everyone.', 'She wants to *be the best at* maths.', '🏆', 'бути найкращим у чомусь', 'ser el mejor en algo', '在某方面最棒'],
- ['concrete', 'noun', 'A hard grey material for buildings.', 'The path is made of *concrete*.', '🧱', 'бетон', 'hormigón', '混凝土'],
- ['cycle path', 'noun', 'A road only for bikes.', 'We rode along the *cycle path*.', '🚴', 'велодоріжка', 'carril bici', '自行车道'],
- ['design', 'noun', 'A plan or drawing of how something will look.', 'I like the *design* of this house.', '📐', 'дизайн', 'diseño', '设计'],
- ['give up', 'phrasal verb', 'To stop trying.', 'Never *give up*!', '🏳️', 'здаватися', 'rendirse', '放弃'],
- ['grow up', 'phrasal verb', 'To become an adult.', 'I *grew up* in a small town.', '🌱', 'дорослішати', 'crecer', '长大'],
- ['library', 'noun', 'A place where you borrow books.', 'I borrow books from the *library*.', '📚', 'бібліотека', 'biblioteca', '图书馆'],
- ['made of wood', 'phrase', 'Built from wood.', 'The bench is *made of wood*.', '🪵', 'зроблений з дерева', 'hecho de madera', '木制的'],
- ['meet up', 'phrasal verb', 'To meet someone as planned.', 'Let us *meet up* at six.', '🤝', 'зустрітися', 'quedar', '见面'],
- ['park', 'noun', 'A green place in a town with trees.', 'We play football in the *park*.', '🌳', 'парк', 'parque', '公园'],
- ['pass the time', 'phrase', 'To do something while you wait.', 'I read to *pass the time*.', '⏳', 'згаяти час', 'pasar el tiempo', '打发时间'],
- ['shape', 'noun', 'The form of something, like a circle or square.', 'The pool has a round *shape*.', '🔷', 'форма', 'forma', '形状']
-]);
-const GOLD_D = G('gd', [
- ['do well', 'phrase', 'To be successful at something.', 'She *did well* in the test.', '👍', 'добре виступити', 'irle bien', '做得好'],
- ['spend time', 'phrase', 'To use your time doing something.', 'I *spend time* with my friends at weekends.', '🕒', 'проводити час', 'pasar tiempo', '花时间'],
- ['get good results', 'phrase', 'To get high marks or a good result.', 'He *got good results* in his exams.', '💯', 'отримувати хороші результати', 'sacar buenos resultados', '取得好成绩'],
- ['waste time', 'phrase', 'To use time badly, without a good reason.', 'Do not *waste time* on your phone.', '⌛', 'марнувати час', 'perder el tiempo', '浪费时间'],
- ['go well', 'phrase', 'To happen in a good way.', 'The party *went well*.', '😊', 'проходити добре', 'salir bien', '进展顺利'],
- ['make progress', 'phrase', 'To get better step by step.', 'You are *making progress* in English.', '📈', 'робити успіхи', 'hacer progresos', '取得进步'],
- ['get better at', 'phrase', 'To improve at something.', 'I want to *get better at* swimming.', '💪', 'ставати кращим у', 'mejorar en', '在……方面变得更好'],
- ['take part in', 'phrasal verb', 'To join an activity.', 'Everyone *took part in* the game.', '🙋', 'брати участь у', 'participar en', '参加'],
- ['it doesn’t work', 'phrase', 'It is broken or does not do its job.', 'The lift *doesn’t work*.', '❌', 'це не працює', 'no funciona', '它不能用'],
- ['get it right', 'phrase', 'To give the correct answer.', 'Try again until you *get it right*.', '✅', 'зробити правильно', 'acertar', '做对'],
- ['get it wrong', 'phrase', 'To give a wrong answer or make a mistake.', 'I *got it wrong* in the test.', '🤦', 'зробити неправильно', 'equivocarse', '做错']
-]);
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gold Ex A2+ Study room</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&display=swap"
+    />
+    <style>
+      :root {
+        --bg: #eef2f8;
+        --card: #fff;
+        --ink: #14213d;
+        --mut: #52627f;
+        --line: #cfd8e8;
+        --brand: #2a55e0;
+        --gold: #ffd84d;
+        --soft: #e4eaf4;
+        --edge: #9fb0d0;
+        --ok: #dff3ea;
+        --okl: #17795a;
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f1726;
+          --card: #18233a;
+          --ink: #eaf0fb;
+          --mut: #a8b6d0;
+          --line: #2d3b58;
+          --brand: #8fa8ff;
+          --soft: #22304d;
+          --edge: #4a5c80;
+          --ok: #16372c;
+          --okl: #6fd4a8;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Figtree, system-ui, sans-serif;
+        font-size: 16px;
+        line-height: 1.4;
+      }
+      main {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 32px 20px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      h1,
+      h2 {
+        font-family: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+        margin: 0;
+        line-height: 1.05;
+      }
+      h1 {
+        font-weight: 800;
+        font-size: clamp(30px, 6vw, 40px);
+        letter-spacing: -0.01em;
+      }
+      h2 {
+        font-weight: 800;
+        font-size: 28px;
+      }
+      .sub {
+        margin: 0;
+        color: var(--mut);
+        font-size: 14px;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .between {
+        justify-content: space-between;
+      }
+      .btn {
+        font: inherit;
+        font-size: 15px;
+        font-weight: 600;
+        min-height: 44px;
+        padding: 8px 16px;
+        border-radius: 10px;
+        border: 1px solid var(--edge);
+        background: var(--card);
+        color: var(--ink);
+        cursor: pointer;
+      }
+      .btn:hover:not(:disabled) {
+        background: var(--soft);
+      }
+      .btn:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+      .btn[aria-pressed="true"] {
+        background: var(--ink);
+        color: var(--bg);
+        border-color: var(--ink);
+      }
+      button:focus-visible {
+        outline: 3px solid var(--brand);
+        outline-offset: 2px;
+      }
+      .nav {
+        display: flex;
+        gap: 8px;
+        padding: 4px;
+        background: var(--soft);
+        border-radius: 14px;
+        align-self: flex-start;
+      }
+      .sq {
+        width: 38px;
+        height: 38px;
+        border-radius: 4px;
+        border: 2px solid var(--line);
+        background: var(--card);
+        color: var(--mut);
+        font: inherit;
+        font-weight: 800;
+        font-size: 15px;
+        cursor: pointer;
+        padding: 0;
+      }
+      .sq.star {
+        border-color: #b8860b;
+        background: #fff7d6;
+        color: #14213d;
+      }
+      .sq.cur {
+        background: var(--gold);
+        border-color: #14213d;
+        color: #14213d;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow:
+          0 1px 2px rgba(20, 33, 61, 0.08),
+          0 10px 30px rgba(20, 33, 61, 0.08);
+        padding: 26px 24px;
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .tag {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--mut);
+        border: 1px solid var(--line);
+        padding: 3px 9px;
+        border-radius: 99px;
+      }
+      .starbtn {
+        min-width: 44px;
+        padding: 4px 10px;
+        font-size: 24px;
+        line-height: 1;
+      }
+      .starbtn[aria-pressed="true"] {
+        background: var(--gold);
+        border-color: #b8860b;
+        color: #14213d;
+      }
+      .word {
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-weight: 800;
+        line-height: 1.02;
+        overflow-wrap: anywhere;
+        margin: 0;
+      }
+      .pic {
+        width: 150px;
+        height: 150px;
+        align-self: center;
+        border-radius: 14px;
+      }
+      .ex {
+        margin: 0;
+        padding-left: 14px;
+        border-left: 3px solid var(--brand);
+        font-size: 18px;
+      }
+      mark {
+        background: var(--gold);
+        color: #14213d;
+        padding: 0 3px;
+        border-radius: 3px;
+      }
+      .blank {
+        display: inline-block;
+        min-width: 6ch;
+        border-bottom: 2px solid var(--ink);
+      }
+      .arrows {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+      }
+      .arrows .btn {
+        width: 72px;
+        font-size: 24px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+      }
+      .tile {
+        min-height: 84px;
+        padding: 10px;
+        border-radius: 12px;
+        font: inherit;
+        font-size: 16px;
+        line-height: 1.25;
+        text-align: center;
+        overflow-wrap: anywhere;
+        cursor: pointer;
+        border: 2px solid var(--edge);
+        background: var(--card);
+        color: var(--ink);
+      }
+      .tile img {
+        width: 64px;
+        height: 64px;
+        display: block;
+        margin: 0 auto;
+      }
+      .tile.w {
+        font-weight: 800;
+      }
+      .tile.down {
+        background: var(--brand);
+        border-color: var(--brand);
+        color: #fff;
+        font-size: 30px;
+        font-weight: 800;
+      }
+      .tile.sel {
+        background: var(--gold);
+        border-color: #14213d;
+        color: #14213d;
+      }
+      .tile.done {
+        background: var(--ok);
+        border-color: var(--okl);
+        opacity: 0.8;
+      }
+      .msg {
+        margin: 0;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <main id="app"></main>
+    <script>
+      const P = (s) =>
+        "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s);
+      const S = (b) =>
+        P(
+          `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>${b}</svg>`,
+        );
+      const E = (e) =>
+        S(
+          `<text x='50' y='76' font-size='78' text-anchor='middle'>${e}</text>`,
+        );
+      const G = (p, rows) =>
+        rows.map((r, i) => ({
+          id: p + i,
+          word: r[0],
+          pos: r[1],
+          meaning: r[2],
+          example: r[3],
+          trick: "",
+          pic: r[4] ? E(r[4]) : "",
+          ua: r[5],
+          es: r[6],
+          zh: r[7],
+        }));
+      const GOLD_A = G("ga", [
+        [
+          "attractive",
+          "adjective",
+          "Nice to look at.",
+          "The old town is very *attractive*.",
+          "🌸",
+          "привабливий",
+          "atractivo",
+          "有吸引力的",
+        ],
+        [
+          "dull",
+          "adjective",
+          "Boring and not interesting.",
+          "The town is *dull* on Sundays.",
+          "🥱",
+          "нудний",
+          "aburrido",
+          "乏味的",
+        ],
+        [
+          "happy",
+          "adjective",
+          "Feeling good and pleased.",
+          "Children are *happy* in this town.",
+          "😀",
+          "щасливий",
+          "feliz",
+          "快乐的",
+        ],
+        [
+          "industrial",
+          "adjective",
+          "Full of factories and industry.",
+          "It is an *industrial* city.",
+          "🏭",
+          "промисловий",
+          "industrial",
+          "工业的",
+        ],
+        [
+          "lively",
+          "adjective",
+          "Full of life and activity.",
+          "The market is *lively* at night.",
+          "🎉",
+          "жвавий",
+          "animado",
+          "热闹的",
+        ],
+        [
+          "modern",
+          "adjective",
+          "New, not old.",
+          "The library is a *modern* building.",
+          "🏙️",
+          "сучасний",
+          "moderno",
+          "现代的",
+        ],
+        [
+          "quiet",
+          "adjective",
+          "Without much noise.",
+          "Our street is very *quiet*.",
+          "🤫",
+          "тихий",
+          "tranquilo",
+          "安静的",
+        ],
+        [
+          "relaxed",
+          "adjective",
+          "Calm and not worried.",
+          "People are *relaxed* here.",
+          "😌",
+          "розслаблений",
+          "relajado",
+          "轻松的",
+        ],
+        [
+          "safe",
+          "adjective",
+          "Not dangerous.",
+          "The park is *safe* for children.",
+          "🔒",
+          "безпечний",
+          "seguro",
+          "安全的",
+        ],
+        [
+          "traditional",
+          "adjective",
+          "Following old customs.",
+          "We ate a *traditional* meal.",
+          "🏯",
+          "традиційний",
+          "tradicional",
+          "传统的",
+        ],
+        [
+          "apartment block",
+          "noun",
+          "A tall building with many flats.",
+          "We live in an *apartment block*.",
+          "🏢",
+          "багатоквартирний будинок",
+          "bloque de apartamentos",
+          "公寓楼",
+        ],
+        [
+          "art gallery",
+          "noun",
+          "A place where you look at paintings.",
+          "We visited an *art gallery*.",
+          "🖼️",
+          "художня галерея",
+          "galería de arte",
+          "美术馆",
+        ],
+        [
+          "bike rack",
+          "noun",
+          "A stand where you lock your bike.",
+          "I put my bike in the *bike rack*.",
+          "🚲",
+          "велосипедна стоянка",
+          "aparcabicicletas",
+          "自行车架",
+        ],
+        [
+          "bus stop",
+          "noun",
+          "A place where buses stop for people.",
+          "I wait at the *bus stop*.",
+          "🚏",
+          "автобусна зупинка",
+          "parada de autobús",
+          "公交车站",
+        ],
+        [
+          "crossing",
+          "noun",
+          "A place where you cross the road.",
+          "Use the *crossing* to cross the road.",
+          "🚸",
+          "пішохідний перехід",
+          "paso de peatones",
+          "人行横道",
+        ],
+        [
+          "department store",
+          "noun",
+          "A big shop with many sections.",
+          "The *department store* sells clothes and toys.",
+          "🏬",
+          "універмаг",
+          "grandes almacenes",
+          "百货商店",
+        ],
+        [
+          "pavement",
+          "noun",
+          "The path at the side of a road.",
+          "Walk on the *pavement*.",
+          "🚶",
+          "тротуар",
+          "acera",
+          "人行道",
+        ],
+        [
+          "rubbish bin",
+          "noun",
+          "A container for rubbish.",
+          "Put it in the *rubbish bin*.",
+          "🗑️",
+          "сміттєвий бак",
+          "papelera",
+          "垃圾桶",
+        ],
+        [
+          "seat",
+          "noun",
+          "Something you sit on.",
+          "There is a *seat* in the park.",
+          "🪑",
+          "сидіння",
+          "asiento",
+          "座位",
+        ],
+        [
+          "skate park",
+          "noun",
+          "A place for skateboarding.",
+          "He goes to the *skate park* after school.",
+          "🛹",
+          "скейт-парк",
+          "skatepark",
+          "滑板公园",
+        ],
+        [
+          "sports centre",
+          "noun",
+          "A building for sport and exercise.",
+          "We play tennis at the *sports centre*.",
+          "🏟️",
+          "спортивний центр",
+          "polideportivo",
+          "体育中心",
+        ],
+        [
+          "swimming pool",
+          "noun",
+          "A place to swim.",
+          "The *swimming pool* is very big.",
+          "🏊",
+          "басейн",
+          "piscina",
+          "游泳池",
+        ],
+      ]);
+      const GOLD_B = G("gb", [
+        [
+          "by the sea/water",
+          "phrase",
+          "Next to the sea or water.",
+          "Our hotel is *by the sea*.",
+          "🌊",
+          "біля моря/води",
+          "junto al mar/agua",
+          "在海边/水边",
+        ],
+        [
+          "in an area/a region called",
+          "phrase",
+          "In a place with a name.",
+          "It is *in a region called* Tuscany.",
+          "📍",
+          "у районі/регіоні під назвою",
+          "en una zona/región llamada",
+          "在名为……的地区",
+        ],
+        [
+          "in the capital",
+          "phrase",
+          "In the main city of a country.",
+          "The museum is *in the capital*.",
+          "🏛️",
+          "у столиці",
+          "en la capital",
+          "在首都",
+        ],
+        [
+          "in the centre of",
+          "phrase",
+          "In the middle of a place.",
+          "The square is *in the centre of* town.",
+          "🎯",
+          "у центрі",
+          "en el centro de",
+          "在……的中心",
+        ],
+        [
+          "in the north/south/east/west",
+          "phrase",
+          "In one part of a country.",
+          "Scotland is *in the north* of Britain.",
+          "🧭",
+          "на півночі/півдні/сході/заході",
+          "en el norte/sur/este/oeste",
+          "在北部/南部/东部/西部",
+        ],
+        [
+          "near the border with",
+          "phrase",
+          "Close to the line between two countries.",
+          "The town is *near the border with* Poland.",
+          "🚧",
+          "поблизу кордону з",
+          "cerca de la frontera con",
+          "靠近与……的边界",
+        ],
+        [
+          "near the capital",
+          "phrase",
+          "Close to the main city.",
+          "We live *near the capital*.",
+          "🗺️",
+          "поблизу столиці",
+          "cerca de la capital",
+          "靠近首都",
+        ],
+        [
+          "near the mountains",
+          "phrase",
+          "Close to the mountains.",
+          "The village is *near the mountains*.",
+          "🏔️",
+          "поблизу гір",
+          "cerca de las montañas",
+          "靠近山区",
+        ],
+        [
+          "on the coast",
+          "phrase",
+          "At the edge of the land, next to the sea.",
+          "Brighton is *on the coast*.",
+          "🏖️",
+          "на узбережжі",
+          "en la costa",
+          "在海岸",
+        ],
+        [
+          "at the back",
+          "phrase",
+          "Behind, in the part furthest away.",
+          "The dog is *at the back* of the photo.",
+          "",
+          "позаду, на задньому плані",
+          "al fondo",
+          "在后面",
+        ],
+        [
+          "at the front",
+          "phrase",
+          "In the part nearest to you.",
+          "The girl is *at the front* of the photo.",
+          "",
+          "спереду",
+          "delante",
+          "在前面",
+        ],
+        [
+          "on the left",
+          "phrase",
+          "On the side of your left hand.",
+          "The bike is *on the left*.",
+          "⬅️",
+          "ліворуч",
+          "a la izquierda",
+          "在左边",
+        ],
+        [
+          "on the right",
+          "phrase",
+          "On the side of your right hand.",
+          "The bus is *on the right*.",
+          "➡️",
+          "праворуч",
+          "a la derecha",
+          "在右边",
+        ],
+      ]);
+      const GOLD_C = G("gc", [
+        [
+          "community",
+          "noun",
+          "A group of people who live in one place.",
+          "Our *community* is friendly.",
+          "🏘️",
+          "громада",
+          "comunidad",
+          "社区",
+        ],
+        [
+          "freeze",
+          "verb",
+          "To become ice because it is very cold.",
+          "Water will *freeze* tonight.",
+          "🥶",
+          "замерзати",
+          "congelarse",
+          "结冰",
+        ],
+        [
+          "hang out",
+          "phrasal verb",
+          "To spend time with friends.",
+          "We *hang out* at the park.",
+          "😎",
+          "проводити час разом",
+          "pasar el rato",
+          "闲逛",
+        ],
+        [
+          "lift",
+          "noun",
+          "A machine that takes you up and down a building.",
+          "Take the *lift* to the sixth floor.",
+          "🛗",
+          "ліфт",
+          "ascensor",
+          "电梯",
+        ],
+        [
+          "open",
+          "adjective",
+          "Not closed.",
+          "The shop is *open* until nine.",
+          "🔓",
+          "відкритий",
+          "abierto",
+          "开着的",
+        ],
+        [
+          "pressure",
+          "noun",
+          "A feeling of worry from having to do something.",
+          "Exams put *pressure* on students.",
+          "😰",
+          "тиск",
+          "presión",
+          "压力",
+        ],
+        [
+          "be the best at something",
+          "phrase",
+          "To do something better than everyone.",
+          "She wants to *be the best at* maths.",
+          "🏆",
+          "бути найкращим у чомусь",
+          "ser el mejor en algo",
+          "在某方面最棒",
+        ],
+        [
+          "concrete",
+          "noun",
+          "A hard grey material for buildings.",
+          "The path is made of *concrete*.",
+          "🧱",
+          "бетон",
+          "hormigón",
+          "混凝土",
+        ],
+        [
+          "cycle path",
+          "noun",
+          "A road only for bikes.",
+          "We rode along the *cycle path*.",
+          "🚴",
+          "велодоріжка",
+          "carril bici",
+          "自行车道",
+        ],
+        [
+          "design",
+          "noun",
+          "A plan or drawing of how something will look.",
+          "I like the *design* of this house.",
+          "📐",
+          "дизайн",
+          "diseño",
+          "设计",
+        ],
+        [
+          "give up",
+          "phrasal verb",
+          "To stop trying.",
+          "Never *give up*!",
+          "🏳️",
+          "здаватися",
+          "rendirse",
+          "放弃",
+        ],
+        [
+          "grow up",
+          "phrasal verb",
+          "To become an adult.",
+          "I *grew up* in a small town.",
+          "🌱",
+          "дорослішати",
+          "crecer",
+          "长大",
+        ],
+        [
+          "library",
+          "noun",
+          "A place where you borrow books.",
+          "I borrow books from the *library*.",
+          "📚",
+          "бібліотека",
+          "biblioteca",
+          "图书馆",
+        ],
+        [
+          "made of wood",
+          "phrase",
+          "Built from wood.",
+          "The bench is *made of wood*.",
+          "🪵",
+          "зроблений з дерева",
+          "hecho de madera",
+          "木制的",
+        ],
+        [
+          "meet up",
+          "phrasal verb",
+          "To meet someone as planned.",
+          "Let us *meet up* at six.",
+          "🤝",
+          "зустрітися",
+          "quedar",
+          "见面",
+        ],
+        [
+          "park",
+          "noun",
+          "A green place in a town with trees.",
+          "We play football in the *park*.",
+          "🌳",
+          "парк",
+          "parque",
+          "公园",
+        ],
+        [
+          "pass the time",
+          "phrase",
+          "To do something while you wait.",
+          "I read to *pass the time*.",
+          "⏳",
+          "згаяти час",
+          "pasar el tiempo",
+          "打发时间",
+        ],
+        [
+          "shape",
+          "noun",
+          "The form of something, like a circle or square.",
+          "The pool has a round *shape*.",
+          "🔷",
+          "форма",
+          "forma",
+          "形状",
+        ],
+      ]);
+      const GOLD_D = G("gd", [
+        [
+          "do well",
+          "phrase",
+          "To be successful at something.",
+          "She *did well* in the test.",
+          "👍",
+          "добре виступити",
+          "irle bien",
+          "做得好",
+        ],
+        [
+          "spend time",
+          "phrase",
+          "To use your time doing something.",
+          "I *spend time* with my friends at weekends.",
+          "🕒",
+          "проводити час",
+          "pasar tiempo",
+          "花时间",
+        ],
+        [
+          "get good results",
+          "phrase",
+          "To get high marks or a good result.",
+          "He *got good results* in his exams.",
+          "💯",
+          "отримувати хороші результати",
+          "sacar buenos resultados",
+          "取得好成绩",
+        ],
+        [
+          "waste time",
+          "phrase",
+          "To use time badly, without a good reason.",
+          "Do not *waste time* on your phone.",
+          "⌛",
+          "марнувати час",
+          "perder el tiempo",
+          "浪费时间",
+        ],
+        [
+          "go well",
+          "phrase",
+          "To happen in a good way.",
+          "The party *went well*.",
+          "😊",
+          "проходити добре",
+          "salir bien",
+          "进展顺利",
+        ],
+        [
+          "make progress",
+          "phrase",
+          "To get better step by step.",
+          "You are *making progress* in English.",
+          "📈",
+          "робити успіхи",
+          "hacer progresos",
+          "取得进步",
+        ],
+        [
+          "get better at",
+          "phrase",
+          "To improve at something.",
+          "I want to *get better at* swimming.",
+          "💪",
+          "ставати кращим у",
+          "mejorar en",
+          "在……方面变得更好",
+        ],
+        [
+          "take part in",
+          "phrasal verb",
+          "To join an activity.",
+          "Everyone *took part in* the game.",
+          "🙋",
+          "брати участь у",
+          "participar en",
+          "参加",
+        ],
+        [
+          "it doesn’t work",
+          "phrase",
+          "It is broken or does not do its job.",
+          "The lift *doesn’t work*.",
+          "❌",
+          "це не працює",
+          "no funciona",
+          "它不能用",
+        ],
+        [
+          "get it right",
+          "phrase",
+          "To give the correct answer.",
+          "Try again until you *get it right*.",
+          "✅",
+          "зробити правильно",
+          "acertar",
+          "做对",
+        ],
+        [
+          "get it wrong",
+          "phrase",
+          "To give a wrong answer or make a mistake.",
+          "I *got it wrong* in the test.",
+          "🤦",
+          "зробити неправильно",
+          "equivocarse",
+          "做错",
+        ],
+      ]);
 
-const SETS=[
- {label:'Places and town',cards:GOLD_A},
- {label:'Where things are',cards:GOLD_B},
- {label:'Other and extra',cards:GOLD_C},
- {label:'Unit 2',cards:GOLD_D}
-];
-const store={
- get(k,d){try{const v=localStorage.getItem('gold-'+k);return v?JSON.parse(v):d}catch(e){return d}},
- set(k,v){try{localStorage.setItem('gold-'+k,JSON.stringify(v))}catch(e){}}
-};
-const st={section:'cards',set:Math.min(store.get('set',0),SETS.length-1),mode:'word',pos:0,flipped:false,more:false,only:false,queue:[],starred:store.get('starred',{}),game:'match',tiles:[],sel:[],gm:{},tries:0,busy:false};
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const cur=()=>SETS[st.set];
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function buildQueue(sh){const ids=cur().cards.filter(c=>!st.only||st.starred[c.id]).map(c=>c.id);return sh?shuffle(ids):ids}
-function newGame(){
- const t=[];
- shuffle(cur().cards.slice()).slice(0,6).forEach(c=>{t.push({id:c.id,k:'w',text:c.word});t.push({id:c.id,k:'m',text:c.meaning,pic:c.pic})});
- st.tiles=shuffle(t);st.sel=[];st.gm={};st.tries=0;st.busy=false;
-}
-function setSet(i){st.set=i;st.only=false;st.queue=buildQueue(false);st.pos=0;st.flipped=false;st.more=false;newGame();store.set('set',i)}
-const card=()=>cur().cards.find(c=>c.id===st.queue[st.pos]);
-const pressed=(on,extra)=>`aria-pressed="${on?'true':'false'}"${extra||''}`;
-function tabs(list,act,on){return list.map((l,i)=>`<button type="button" class="btn" data-act="${act}" data-i="${i}" ${pressed(on===i)}>${esc(l)}</button>`).join('')}
+      const SETS = [
+        { label: "Places and town", cards: GOLD_A },
+        { label: "Where things are", cards: GOLD_B },
+        { label: "Other and extra", cards: GOLD_C },
+        { label: "Unit 2", cards: GOLD_D },
+      ];
+      const store = {
+        get(k, d) {
+          try {
+            const v = localStorage.getItem("gold-" + k);
+            return v ? JSON.parse(v) : d;
+          } catch (e) {
+            return d;
+          }
+        },
+        set(k, v) {
+          try {
+            localStorage.setItem("gold-" + k, JSON.stringify(v));
+          } catch (e) {}
+        },
+      };
+      const st = {
+        section: "cards",
+        set: Math.min(store.get("set", 0), SETS.length - 1),
+        mode: "word",
+        pos: 0,
+        flipped: false,
+        more: false,
+        only: false,
+        queue: [],
+        starred: store.get("starred", {}),
+        game: "match",
+        tiles: [],
+        sel: [],
+        gm: {},
+        tries: 0,
+        busy: false,
+      };
+      const esc = (s) =>
+        String(s).replace(
+          /[&<>"]/g,
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+        );
+      const cur = () => SETS[st.set];
+      function shuffle(a) {
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+      function buildQueue(sh) {
+        const ids = cur()
+          .cards.filter((c) => !st.only || st.starred[c.id])
+          .map((c) => c.id);
+        return sh ? shuffle(ids) : ids;
+      }
+      function newGame() {
+        const t = [];
+        shuffle(cur().cards.slice())
+          .slice(0, 6)
+          .forEach((c) => {
+            t.push({ id: c.id, k: "w", text: c.word });
+            t.push({ id: c.id, k: "m", text: c.meaning, pic: c.pic });
+          });
+        st.tiles = shuffle(t);
+        st.sel = [];
+        st.gm = {};
+        st.tries = 0;
+        st.busy = false;
+      }
+      function setSet(i) {
+        st.set = i;
+        st.only = false;
+        st.queue = buildQueue(false);
+        st.pos = 0;
+        st.flipped = false;
+        st.more = false;
+        newGame();
+        store.set("set", i);
+      }
+      const card = () => cur().cards.find((c) => c.id === st.queue[st.pos]);
+      const pressed = (on, extra) =>
+        `aria-pressed="${on ? "true" : "false"}"${extra || ""}`;
+      function tabs(list, act, on) {
+        return list
+          .map(
+            (l, i) =>
+              `<button type="button" class="btn" data-act="${act}" data-i="${i}" ${pressed(on === i)}>${esc(l)}</button>`,
+          )
+          .join("");
+      }
 
-function viewCards(){
- const c=card(),s=cur(),n=st.queue.length;
- const cnt=s.cards.filter(x=>st.starred[x.id]).length;
- let body='';
- if(!c){body='<div class="card"><p class="msg">No cards here yet. Star a card first, then turn on Starred only.</p></div>'}
- else{
-  const m=c.example.match(/^(.*?)\*(.+?)\*(.*)$/)||[0,c.example,'',''];
-  const pic=c.pic?`<img class="pic" src="${c.pic}" alt="">`:'';
-  const star=!!st.starred[c.id];
-  let face;
-  if(!st.flipped&&st.mode==='word'){face=`${pic}<p class="word" style="font-size:clamp(36px,9vw,56px);margin:auto 0">${esc(c.word)}</p>`}
-  else if(!st.flipped){face=`<p style="margin:auto 0 0;font-size:26px;font-weight:600;line-height:1.25">${esc(c.meaning)}</p><p class="ex" style="margin-bottom:auto">${esc(m[1])}<span class="blank"></span>${esc(m[3])}</p>`}
-  else{face=`${c.pic?`<img class="pic" style="width:130px;height:130px" src="${c.pic}" alt="">`:''}<p class="word" style="font-size:38px">${esc(c.word)}</p><p style="margin:0;font-size:19px;font-weight:500">${esc(c.meaning)}</p><p class="ex">${esc(m[1])}<mark>${esc(m[2])}</mark>${esc(m[3])}</p><div><button type="button" class="btn" style="min-height:36px;padding:4px 12px;font-size:14px;border-style:dashed" data-act="more" aria-expanded="${st.more}">${st.more?'Hide translations':'Translations'}</button></div>${st.more?`<div style="display:flex;flex-direction:column;gap:4px"><span><b style="font-size:12px;color:var(--mut)">UA</b> &nbsp;${esc(c.ua)}</span><span><b style="font-size:12px;color:var(--mut)">ES</b> &nbsp;${esc(c.es)}</span><span><b style="font-size:12px;color:var(--mut)">ZH</b> &nbsp;${esc(c.zh)}</span></div>`:''}`}
-  const tag=(st.flipped||st.mode==='word')?c.pos:'Which word?';
-  body=`<div class="card"><div class="row between" style="align-items:center;flex-wrap:nowrap"><span class="tag">${esc(tag)}</span><button type="button" class="btn starbtn" data-act="star" ${pressed(star)} aria-label="Star this card to study it later">${star?'★':'☆'}</button></div>${face}</div>
-  <button type="button" class="btn" data-act="flip">${st.flipped?'Flip back':'Flip card'}</button>`;
- }
- return `<h2>Word cards</h2>
- <div class="row">${tabs(SETS.map(x=>x.label+' ('+x.cards.length+')'),'set',st.set)}</div>
- <div class="row between"><div class="row">${tabs(['Word → meaning','Meaning → word'],'mode',st.mode==='word'?0:1)}</div>
- <div class="row"><button type="button" class="btn" data-act="only" ${pressed(st.only)} ${!st.only&&!cnt?'disabled':''}>★ Starred only (${cnt})</button><button type="button" class="btn" data-act="shuffle">Shuffle</button><button type="button" class="btn" data-act="reset">Reset</button></div></div>
- <div class="row" style="gap:6px">${st.queue.map((id,i)=>`<button type="button" class="sq${i===st.pos?' cur':''}${st.starred[id]?' star':''}" data-act="goto" data-i="${i}" aria-label="Card ${i+1}">${st.starred[id]?'★':''}${i+1}</button>`).join('')}</div>
- <p class="sub" aria-live="polite">Card ${n?st.pos+1:0} of ${n}${st.only?' · starred only':''}. Tip: use the ← and → keys.</p>
+      function viewCards() {
+        const c = card(),
+          s = cur(),
+          n = st.queue.length;
+        const cnt = s.cards.filter((x) => st.starred[x.id]).length;
+        let body = "";
+        if (!c) {
+          body =
+            '<div class="card"><p class="msg">No cards here yet. Star a card first, then turn on Starred only.</p></div>';
+        } else {
+          const m = c.example.match(/^(.*?)\*(.+?)\*(.*)$/) || [
+            0,
+            c.example,
+            "",
+            "",
+          ];
+          const pic = c.pic ? `<img class="pic" src="${c.pic}" alt="">` : "";
+          const star = !!st.starred[c.id];
+          let face;
+          if (!st.flipped && st.mode === "word") {
+            face = `${pic}<p class="word" style="font-size:clamp(36px,9vw,56px);margin:auto 0">${esc(c.word)}</p>`;
+          } else if (!st.flipped) {
+            face = `<p style="margin:auto 0 0;font-size:26px;font-weight:600;line-height:1.25">${esc(c.meaning)}</p><p class="ex" style="margin-bottom:auto">${esc(m[1])}<span class="blank"></span>${esc(m[3])}</p>`;
+          } else {
+            face = `${c.pic ? `<img class="pic" style="width:130px;height:130px" src="${c.pic}" alt="">` : ""}<p class="word" style="font-size:38px">${esc(c.word)}</p><p style="margin:0;font-size:19px;font-weight:500">${esc(c.meaning)}</p><p class="ex">${esc(m[1])}<mark>${esc(m[2])}</mark>${esc(m[3])}</p><div><button type="button" class="btn" style="min-height:36px;padding:4px 12px;font-size:14px;border-style:dashed" data-act="more" aria-expanded="${st.more}">${st.more ? "Hide translations" : "Translations"}</button></div>${st.more ? `<div style="display:flex;flex-direction:column;gap:4px"><span><b style="font-size:12px;color:var(--mut)">UA</b> &nbsp;${esc(c.ua)}</span><span><b style="font-size:12px;color:var(--mut)">ES</b> &nbsp;${esc(c.es)}</span><span><b style="font-size:12px;color:var(--mut)">ZH</b> &nbsp;${esc(c.zh)}</span></div>` : ""}`;
+          }
+          const tag = st.flipped || st.mode === "word" ? c.pos : "Which word?";
+          body = `<div class="card"><div class="row between" style="align-items:center;flex-wrap:nowrap"><span class="tag">${esc(tag)}</span><button type="button" class="btn starbtn" data-act="star" ${pressed(star)} aria-label="Star this card to study it later">${star ? "★" : "☆"}</button></div>${face}</div>
+  <button type="button" class="btn" data-act="flip">${st.flipped ? "Flip back" : "Flip card"}</button>`;
+        }
+        return `<h2>Word cards</h2>
+ <div class="row">${tabs(
+   SETS.map((x) => x.label + " (" + x.cards.length + ")"),
+   "set",
+   st.set,
+ )}</div>
+ <div class="row between"><div class="row">${tabs(["Word → meaning", "Meaning → word"], "mode", st.mode === "word" ? 0 : 1)}</div>
+ <div class="row"><button type="button" class="btn" data-act="only" ${pressed(st.only)} ${!st.only && !cnt ? "disabled" : ""}>★ Starred only (${cnt})</button><button type="button" class="btn" data-act="shuffle">Shuffle</button><button type="button" class="btn" data-act="reset">Reset</button></div></div>
+ <div class="row" style="gap:6px">${st.queue.map((id, i) => `<button type="button" class="sq${i === st.pos ? " cur" : ""}${st.starred[id] ? " star" : ""}" data-act="goto" data-i="${i}" aria-label="Card ${i + 1}">${st.starred[id] ? "★" : ""}${i + 1}</button>`).join("")}</div>
+ <p class="sub" aria-live="polite">Card ${n ? st.pos + 1 : 0} of ${n}${st.only ? " · starred only" : ""}. Tip: use the ← and → keys.</p>
  ${body}
- <div class="arrows"><button type="button" class="btn" data-act="prev" aria-label="Previous card" ${st.pos<=0?'disabled':''}>←</button><span class="sub" style="min-width:90px;text-align:center">${n?st.pos+1:0} / ${n}</span><button type="button" class="btn" data-act="next" aria-label="Next card" ${st.pos>=n-1?'disabled':''}>→</button></div>`;
-}
-function viewGames(){
- const mem=st.game==='memory',total=st.tiles.length/2,won=Object.keys(st.gm).length===total;
- const tiles=st.tiles.map((t,i)=>{
-  const m=!!st.gm[t.id],pk=st.sel.includes(i),up=m||pk||!mem;
-  const cls='tile'+(up?(t.k==='w'?' w':''):' down')+(m?' done':pk?' sel':'');
-  const inner=!up?'?':(t.pic?`<img src="${t.pic}" alt="">`:esc(t.text));
-  return `<button type="button" class="${cls}" data-act="tile" data-i="${i}" ${m?'disabled':''} aria-label="${up?esc(t.pic?'Picture tile':t.text):'Hidden tile'}">${inner}</button>`}).join('');
- return `<h2>Games</h2>
- <div class="row">${tabs(['Matching','Memory'],'game',mem?1:0)}</div>
- <div class="row between"><div class="row">${tabs(SETS.map(x=>x.label),'gset',st.set)}</div><button type="button" class="btn" data-act="newgame">New game</button></div>
- <p class="msg" aria-live="polite">${won?`All matched in ${st.tries} tries. Well done!`:(mem?'Flip two tiles to find a word and its meaning.':'Tap a word, then its meaning.')+' Tries: '+st.tries}</p>
+ <div class="arrows"><button type="button" class="btn" data-act="prev" aria-label="Previous card" ${st.pos <= 0 ? "disabled" : ""}>←</button><span class="sub" style="min-width:90px;text-align:center">${n ? st.pos + 1 : 0} / ${n}</span><button type="button" class="btn" data-act="next" aria-label="Next card" ${st.pos >= n - 1 ? "disabled" : ""}>→</button></div>`;
+      }
+      function viewGames() {
+        const mem = st.game === "memory",
+          total = st.tiles.length / 2,
+          won = Object.keys(st.gm).length === total;
+        const tiles = st.tiles
+          .map((t, i) => {
+            const m = !!st.gm[t.id],
+              pk = st.sel.includes(i),
+              up = m || pk || !mem;
+            const cls =
+              "tile" +
+              (up ? (t.k === "w" ? " w" : "") : " down") +
+              (m ? " done" : pk ? " sel" : "");
+            const inner = !up
+              ? "?"
+              : t.pic
+                ? `<img src="${t.pic}" alt="">`
+                : esc(t.text);
+            return `<button type="button" class="${cls}" data-act="tile" data-i="${i}" ${m ? "disabled" : ""} aria-label="${up ? esc(t.pic ? "Picture tile" : t.text) : "Hidden tile"}">${inner}</button>`;
+          })
+          .join("");
+        return `<h2>Games</h2>
+ <div class="row">${tabs(["Matching", "Memory"], "game", mem ? 1 : 0)}</div>
+ <div class="row between"><div class="row">${tabs(
+   SETS.map((x) => x.label),
+   "gset",
+   st.set,
+ )}</div><button type="button" class="btn" data-act="newgame">New game</button></div>
+ <p class="msg" aria-live="polite">${won ? `All matched in ${st.tries} tries. Well done!` : (mem ? "Flip two tiles to find a word and its meaning." : "Tap a word, then its meaning.") + " Tries: " + st.tries}</p>
  <div class="grid">${tiles}</div>`;
-}
-let focusKey=null;
-function render(){
- $app.innerHTML=`<div><h1>Gold Ex A+ Study room</h1><p class="sub" style="margin-top:6px">Gold Experience A2+ vocabulary</p></div>
- <div class="nav">${tabs(['Flashcards','Games'],'nav',st.section==='cards'?0:1)}</div>${st.section==='cards'?viewCards():viewGames()}`;
- if(focusKey){const e=$app.querySelector(focusKey);if(e&&!e.disabled)e.focus()}
-}
-const $app=document.getElementById('app');
-function tap(i){
- if(st.busy||st.sel.includes(i)||st.gm[st.tiles[i].id])return;
- const ns=st.sel.concat(i);
- if(ns.length<2){st.sel=ns;return}
- const a=st.tiles[ns[0]],b=st.tiles[i];st.tries++;
- if(a.id===b.id&&a.k!==b.k){st.gm[a.id]=true;st.sel=[]}
- else{st.sel=ns;st.busy=true;setTimeout(()=>{st.sel=[];st.busy=false;render()},900)}
-}
-function go(d){const n=st.queue.length;const p=st.pos+d;if(p>=0&&p<n){st.pos=p;st.flipped=false;st.more=false}}
-function act(a,i){
- switch(a){
-  case 'nav':st.section=i?'games':'cards';break;
-  case 'set':setSet(i);break;
-  case 'gset':setSet(i);break;
-  case 'mode':st.mode=i?'meaning':'word';st.flipped=false;st.more=false;break;
-  case 'only':st.only=!st.only;st.queue=buildQueue(false);st.pos=0;st.flipped=false;st.more=false;break;
-  case 'shuffle':st.queue=buildQueue(true);st.pos=0;st.flipped=false;st.more=false;break;
-  case 'reset':st.queue=buildQueue(false);st.pos=0;st.flipped=false;st.more=false;break;
-  case 'star':{const c=card();if(c){if(st.starred[c.id])delete st.starred[c.id];else st.starred[c.id]=true;store.set('starred',st.starred)}break}
-  case 'flip':st.flipped=!st.flipped;break;
-  case 'more':st.more=!st.more;break;
-  case 'prev':go(-1);break;
-  case 'next':go(1);break;
-  case 'goto':st.pos=i;st.flipped=false;st.more=false;break;
-  case 'game':st.game=i?'memory':'match';newGame();break;
-  case 'newgame':newGame();break;
-  case 'tile':tap(i);break;
- }
-}
-document.addEventListener('click',e=>{
- const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
- focusKey=`[data-act="${b.dataset.act}"]`+(b.dataset.i!==undefined?`[data-i="${b.dataset.i}"]`:'');
- act(b.dataset.act,+b.dataset.i);render();
-});
-document.addEventListener('keydown',e=>{
- if(st.section!=='cards'||e.altKey||e.ctrlKey||e.metaKey)return;
- if(e.key==='ArrowLeft'){go(-1);focusKey=null;render()}
- if(e.key==='ArrowRight'){go(1);focusKey=null;render()}
-});
-setSet(st.set);render();
-</script>
-</body>
+      }
+      let focusKey = null;
+      function render() {
+        $app.innerHTML = `<div><h1>Gold Ex A2+ Study room</h1><p class="sub" style="margin-top:6px">Gold Experience A2+ vocabulary</p></div>
+ <div class="nav">${tabs(["Flashcards", "Games"], "nav", st.section === "cards" ? 0 : 1)}</div>${st.section === "cards" ? viewCards() : viewGames()}`;
+        if (focusKey) {
+          const e = $app.querySelector(focusKey);
+          if (e && !e.disabled) e.focus();
+        }
+      }
+      const $app = document.getElementById("app");
+      function tap(i) {
+        if (st.busy || st.sel.includes(i) || st.gm[st.tiles[i].id]) return;
+        const ns = st.sel.concat(i);
+        if (ns.length < 2) {
+          st.sel = ns;
+          return;
+        }
+        const a = st.tiles[ns[0]],
+          b = st.tiles[i];
+        st.tries++;
+        if (a.id === b.id && a.k !== b.k) {
+          st.gm[a.id] = true;
+          st.sel = [];
+        } else {
+          st.sel = ns;
+          st.busy = true;
+          setTimeout(() => {
+            st.sel = [];
+            st.busy = false;
+            render();
+          }, 900);
+        }
+      }
+      function go(d) {
+        const n = st.queue.length;
+        const p = st.pos + d;
+        if (p >= 0 && p < n) {
+          st.pos = p;
+          st.flipped = false;
+          st.more = false;
+        }
+      }
+      function act(a, i) {
+        switch (a) {
+          case "nav":
+            st.section = i ? "games" : "cards";
+            break;
+          case "set":
+            setSet(i);
+            break;
+          case "gset":
+            setSet(i);
+            break;
+          case "mode":
+            st.mode = i ? "meaning" : "word";
+            st.flipped = false;
+            st.more = false;
+            break;
+          case "only":
+            st.only = !st.only;
+            st.queue = buildQueue(false);
+            st.pos = 0;
+            st.flipped = false;
+            st.more = false;
+            break;
+          case "shuffle":
+            st.queue = buildQueue(true);
+            st.pos = 0;
+            st.flipped = false;
+            st.more = false;
+            break;
+          case "reset":
+            st.queue = buildQueue(false);
+            st.pos = 0;
+            st.flipped = false;
+            st.more = false;
+            break;
+          case "star": {
+            const c = card();
+            if (c) {
+              if (st.starred[c.id]) delete st.starred[c.id];
+              else st.starred[c.id] = true;
+              store.set("starred", st.starred);
+            }
+            break;
+          }
+          case "flip":
+            st.flipped = !st.flipped;
+            break;
+          case "more":
+            st.more = !st.more;
+            break;
+          case "prev":
+            go(-1);
+            break;
+          case "next":
+            go(1);
+            break;
+          case "goto":
+            st.pos = i;
+            st.flipped = false;
+            st.more = false;
+            break;
+          case "game":
+            st.game = i ? "memory" : "match";
+            newGame();
+            break;
+          case "newgame":
+            newGame();
+            break;
+          case "tile":
+            tap(i);
+            break;
+        }
+      }
+      document.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-act]");
+        if (!b || b.disabled) return;
+        focusKey =
+          `[data-act="${b.dataset.act}"]` +
+          (b.dataset.i !== undefined ? `[data-i="${b.dataset.i}"]` : "");
+        act(b.dataset.act, +b.dataset.i);
+        render();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (st.section !== "cards" || e.altKey || e.ctrlKey || e.metaKey)
+          return;
+        if (e.key === "ArrowLeft") {
+          go(-1);
+          focusKey = null;
+          render();
+        }
+        if (e.key === "ArrowRight") {
+          go(1);
+          focusKey = null;
+          render();
+        }
+      });
+      setSet(st.set);
+      render();
+    </script>
+  </body>
 </html>
